@@ -15,7 +15,9 @@ public class StringMinHeapKey implements Comparable<StringMinHeapKey> {
          * Fix this so that the keys as specified below form a valid heap in 
          * the given order. I.e. "A" has a higher priority than  "B", etc.
          */
-        return key.compareTo(o.key);
+    	//
+    	
+        return o.key.compareTo(key);
     }
 
     public static void main(String[] args) {

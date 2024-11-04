@@ -1,5 +1,7 @@
 package hw5;
 
+import java.util.NoSuchElementException;
+
 /**
  * Linked implementation of a binary search tree. The binary search tree
  * inherits the methods from the binary tree. The add and remove methods must
@@ -100,16 +102,45 @@ public class COMP232LinkedBinarySearchTree<K extends Comparable<K>, V> extends C
 	 * {@inheritDoc}
 	 */
 	public V get(K key) {
-		// Intentionally not implemented - see homework assignment.
-		throw new UnsupportedOperationException("Not yet implemented");
+		
+		BTNode<K, V> vNode = getNodeFromSubTree(root, key);
+		if (vNode != null) {
+			return vNode.value;
+		} else {
+			return null;
+		}
+	}
+	
+	private BTNode<K, V> getNodeFromSubTree(BTNode<K, V> subTreeRoot, K key) {
+		if (subTreeRoot == null) {
+			return null; 
+			
+		} else if (subTreeRoot.key.equals(key)) {
+			return subTreeRoot; 
+			
+		} else {
+			
+			if (key.compareTo(subTreeRoot.key) < 0) {
+				BTNode<K, V> node = getNodeFromSubTree(subTreeRoot.left, key);
+				return node;
+			} else {
+				BTNode<K, V> node = getNodeFromSubTree(subTreeRoot.right, key);
+				return node;
+			}
+			
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public void set(K key, V value) {
-		// Intentionally not implemented - see homework assignment.
-		throw new UnsupportedOperationException("Not yet implemented");
+		BTNode<K, V> node = getNodeFromSubTree(root, key);
+		if (node != null) {
+			node.value = value;
+		} else {
+	        throw new NoSuchElementException("Key not found.");
+	    }		
 	}
 
 	/**
@@ -170,8 +201,83 @@ public class COMP232LinkedBinarySearchTree<K extends Comparable<K>, V> extends C
 	 * {@inheritDoc}
 	 */
 	public V remove(K key) {
-		// Intentionally not implemented - see homework assignment.
-		throw new UnsupportedOperationException("Not yet implemented");
+		
+	    BTNode<K, V> removeNode = getNodeFromSubTree(root, key);
+	
+	    if (removeNode == null) {
+	        return null;
+	    }
+	    
+	    V removedValue = removeNode.value;
+	    BTNode<K, V> parent = removeNode.parent;
+
+	    // Case 1: node to be removed has no children (leaf node)
+	    if (removeNode.left == null && removeNode.right == null) {
+	    	
+	        if (removeNode == root) {
+	            root = null;
+	        } else if (parent.left == removeNode) {
+	            parent.left = null;
+	        } else {
+	            parent.right = null;
+	        }
+	    }
+	    
+	    // Case 2: Node to be removed has only one child
+	    else if (removeNode.left == null || removeNode.right == null) {
+			
+	    	if (removeNode == root) {
+	    		if (removeNode.left != null) {
+	    			root = removeNode.left;
+	    		} else {
+	    			root = removeNode.right;
+	    		}
+	    		
+	    	} else if (parent.left == removeNode) {
+				
+				if (removeNode.left != null) {
+					parent.left = removeNode.left;
+					removeNode.left.parent = parent;
+				} else {
+					parent.left = removeNode.right;
+					removeNode.right.parent = parent;
+				}
+				
+			} else {
+				
+				if (removeNode.right == null) {
+					parent.right = removeNode.left;
+					removeNode.left.parent = parent;
+				} else {
+					parent.right = removeNode.right;
+					removeNode.right.parent = parent;
+				}
+			}	
+		}  
+	    
+	    // Case 3: Node to be removed has two children
+	    else {
+	    	BTNode<K, V> successor = findMin(removeNode.right);
+	    	
+	        removeNode.key = successor.key;
+	        removeNode.value = successor.value;
+
+	        if (successor.parent.left == successor) {
+	            successor.parent.left = successor.right;
+	        } else {
+	            successor.parent.right = successor.right;
+	        }
+	    }
+	    
+	    size--;
+	    return removedValue;
+	}
+	
+	private BTNode<K, V> findMin(BTNode<K, V> node) {
+	    while (node.left != null) {
+	        node = node.left;
+	    }
+	    return node;
 	}
 
 	/*
