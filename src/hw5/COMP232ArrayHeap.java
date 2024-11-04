@@ -89,9 +89,26 @@ public class COMP232ArrayHeap<K extends Comparable<K>, V> implements COMP232Prio
          * This new node may not be in a proper location, i.e. it will not be 
          * larger than its  parents. To fix this we "percolate" the newly added 
          * node up the tree.
-	 * I recommend creating a helper function to assist with the percolation.
+         * I recommend creating a helper function to assist with the percolation.
          */
-        throw new UnsupportedOperationException("Not yet implemented");
+        
+    	HeapNode<K,V> newNode = new HeapNode<>(key, value);
+    	tree.add(newNode);
+    	perculateUp(tree.size()-1);
+    	
+    }
+    
+    private void perculateUp(int index) {
+    	
+    	int parentIndex = getParentIndex(index);
+        HeapNode<K, V> currentNode = tree.get(index);
+        HeapNode<K, V> parentNode = tree.get(parentIndex);
+    	
+    	if (currentNode.key.compareTo(parentNode.key) > 0) {
+    		swap(index, parentIndex);
+    		perculateUp(parentIndex);
+    	}
+    	
     }
 
     /**
@@ -205,9 +222,7 @@ public class COMP232ArrayHeap<K extends Comparable<K>, V> implements COMP232Prio
      *          Thrown if the heap is empty
      */
     public void adjustPriority(V value, K newKey) {
-        // Intentionally not implemented -- see homework assignment
-        throw new UnsupportedOperationException("Not yet implemented.");
-
+        
         /*
          * Find the node with the value -- Hint: Just search through the array!
          * Replace its key and then move the node to a valid location within the
@@ -216,7 +231,39 @@ public class COMP232ArrayHeap<K extends Comparable<K>, V> implements COMP232Prio
          * out of remove, then you can use those two methods to move the node to
          * a proper location.
          */
+        
+    	if(tree.size() == 0) {
+            throw new IllegalStateException("Heap is empty");
+        }
+    	for (int i=0; i < tree.size(); i++) {
+    		
+    		if(tree.get(i).equals(value)) { 
+    			HeapNode<K, V> node = tree.get(i);
+    			K oldKey = node.key;
+    			node.key = newKey;
+    			
+    			if (newKey.compareTo(oldKey) > 0) {
+                    perculateUp(i);
+                } else {
+                    trickleDown(i);
+                }
+    		}
+    		
+    	}
+        
     }
+    
+    private int getIndex(K key) {
+    	
+    	for (int i = 0; i < tree.size(); i++) {
+            if (tree.get(i).key.equals(key)) {
+                return i; // Return the index if the key matches
+            }
+        }
+    	
+    	throw new IllegalArgumentException("Key not found in the list: " + key);
+    }
+    
 
     /**
      * {@inheritDoc}
@@ -248,7 +295,7 @@ public class COMP232ArrayHeap<K extends Comparable<K>, V> implements COMP232Prio
 
     private boolean checkHeapPropertyHelper(int nodeIndex) {
         // traverse the heap, checking the heap property at each node
-        if (nodeIndex > tree.size()) {
+        if (nodeIndex >= tree.size()) {
             return true;    // off tree
         } else {
             // Note: Works on root because (0 - 1) / 2 = 0

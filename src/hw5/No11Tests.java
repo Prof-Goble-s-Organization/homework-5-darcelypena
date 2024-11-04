@@ -125,6 +125,8 @@ public class No11Tests {
 
 		COMP232LinkedBinarySearchTree<Integer, String> bst = new COMP232LinkedBinarySearchTree<Integer, String>(
 				keys, vals);
+		
+		checkTreeValuesInOrder(bst.root, "ABCDEF");
 
 		String val = bst.remove(45);
 
